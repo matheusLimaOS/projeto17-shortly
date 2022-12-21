@@ -74,3 +74,31 @@ export async function verifySignIn(req,res,next){
         }
     }
 }
+
+export async function verifyAuthentication(req,res,next){
+    let {authorization} = req.headers;
+
+    if(authorization===undefined){
+        res.status(401).send();
+    }
+    else{
+        let token = authorization.split(" ");
+
+        let {rows} = await connection.query(`
+            select * from sessions
+            where token = $1
+        `,[token[1]]);
+
+        if(rows.length > 0){
+            res.locals.user = {
+                token: token,
+                userId: rows[0].userId
+            }
+            next();
+        }
+        else{
+            res.status(401).send("Token expirado");
+        }
+
+    }
+}
