@@ -82,3 +82,43 @@ export async function deleteUrl(req,res){
         res.status(500).send();
     }
 }
+
+export async function allRoutesByUser(req,res){
+    let {userId} = res.locals.user;
+    try{
+        let {rows} = await connection.query(`
+            select res.* from (
+                select u."id", u."name" ,SUM(shorts."visitCount")::int as visitCount,array_agg(to_json(shorts)) as "shortenedUrls" from(
+                    select ur."id",ur."shortUrl",ur.url,ur."visitCount" from urls ur
+                    where ur."userId" = $1
+                ) shorts
+                join users u on u.id = $1
+                group by u.id
+            ) res
+            ;
+        `,[userId]);
+
+        res.status(200).send(rows);
+    }
+    catch(e){
+        console.log(e);
+        res.status(500).send();
+    }
+}
+
+export async function ranking(req,res){
+    try{
+        let {rows} = await connection.query(`
+            select u.id, u.name,count(urls.id) as "linksCount", sum(urls."visitCount") as "visitCount"  from users u
+            join urls on urls."userId" = u.id
+            group by u.id
+            order by "visitCount"
+        `,[]);
+
+        res.status(200).send(rows);
+    }
+    catch(e){
+        console.log(e);
+        res.status(500).send();
+    }
+}
