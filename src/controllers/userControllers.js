@@ -21,6 +21,7 @@ export async function SignUp(req,res){
 }
 export async function SignIn(req,res){
     try{
+        let {userId} = res.locals.user;
         let {email,password} = res.locals.user;
         let {rows} = await connection.query(`
             select * from users
@@ -29,11 +30,15 @@ export async function SignIn(req,res){
     
         if(bcrypt.compareSync(password,rows[0].password)){
             const token = uuid();
+            let del = await connection.query(`
+                delete from sessions
+                where "userId" = $1
+            `,[rows[0].id]);
             let insert = await connection.query(`
                 insert into sessions("userId","token")
                 values($1,$2)
             `,[rows[0].id,token]);
-            res.status(201).send(token);
+            res.status(200).send(token);
         }
         else{
             res.status(401).send("Senha incorreta");

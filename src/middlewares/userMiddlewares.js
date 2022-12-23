@@ -17,8 +17,11 @@ export async function verifySignUp(req,res,next){
         res.status(422).send(erros);
         return;
     }
-    else{   
-        if(user.password !==user.confirmPassword){
+    else{
+        if(!validateEmail(email)){
+            res.status(422).send("Formato do e-mail incorreto");
+        }
+        else if(user.password !==user.confirmPassword){
             res.status(422).send("Senha e confirmação de senha divergem!");
         }
         else{
@@ -42,6 +45,12 @@ export async function verifySignUp(req,res,next){
         }
     }
 }
+
+function validateEmail(email) {
+    var re = /\S+@\S+\.\S+/;
+    return re.test(email);
+}
+
 export async function verifySignIn(req,res,next){
     let {email,password} = req.body;
     let user = {
@@ -70,7 +79,7 @@ export async function verifySignIn(req,res,next){
             next();
         }
         else{
-            res.status(422).send("Email não encontrado!");
+            res.status(401).send("Email não encontrado!");
         }
     }
 }

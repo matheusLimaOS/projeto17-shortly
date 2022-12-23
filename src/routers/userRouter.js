@@ -6,7 +6,7 @@ import { allRoutesByUser,ranking } from '../controllers/urlsControllers.js';
 
 export const userRouter = express.Router();
 
-userRouter.get('/signin',verifySignIn,SignIn);
+userRouter.post('/signin',verifySignIn,SignIn);
 userRouter.get("/users/me",verifyAuthentication,allRoutesByUser); 
 userRouter.post("/signup",verifySignUp,SignUp);
-userRouter.post("/ranking",ranking);
+userRouter.get("/ranking",ranking);

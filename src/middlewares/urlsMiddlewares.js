@@ -15,6 +15,9 @@ export async function verifyURL(req,res,next){
         res.status(422).send(erros);
         return;
     }
+    else if(!verificaURL(url)){
+        res.status(422).send("Formato de URL não suṕortado");
+    }
     else{
         let {rows} = await connection.query(`
             select * from urls
@@ -52,6 +55,16 @@ export async function verifyUrlForDelete(req,res,next){
             id:rows[0].id
         }
         next();
+    }
+}
+
+function verificaURL(url){
+	var re = /(http|https):\/\/(\w+:{0,1}\w*@)?(\S+)(:[0-9]+)?(\/|\/([\w#!:.?+=&%@!\-\/]))?|magnet:\?xt=urn:btih:/
+    
+    if (re.test(url)) {
+      return true;
+    } else {
+      return false;
     }
 }
 

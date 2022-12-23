@@ -110,7 +110,7 @@ export async function ranking(req,res){
     try{
         let {rows} = await connection.query(`
             select u.id, u.name,count(urls.id) as "linksCount", sum(urls."visitCount") as "visitCount"  from users u
-            join urls on urls."userId" = u.id
+            left join urls on urls."userId" = u.id
             group by u.id
             order by "visitCount"
         `,[]);
